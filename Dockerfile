@@ -1,17 +1,20 @@
-FROM node:lts-bullseye
+# Use Node.js LTS version on Debian Buster
+FROM node:lts-buster
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Set working directory inside container
+WORKDIR /app
 
-# Clone only the root/ikJawad folder from KHAN-MD
-RUN git clone --filter=blob:none --no-checkout https://github.com/JawadYT36/KHAN-MD.git temp && \
-    cd temp && \
-    git sparse-checkout init --cone && \
-    git sparse-checkout set root/ikJawad && \
-    mv root/ikJawad /root/ikJawad && \
-    cd .. && rm -rf temp
+# Copy only package.json and package-lock.json first (for better caching)
+COPY package*.json ./
 
-WORKDIR /root/ikJawad
-
+# Install dependencies
 RUN npm install && npm install -g pm2 || yarn install --network-concurrency 1
 
+# Copy the rest of the app files
+COPY . .
+
+# Expose your app's port
+EXPOSE 9090
+
+# Start the app with PM2
 CMD ["pm2-runtime", "index.js"]
