@@ -1,6 +1,5 @@
-FROM node:lts-buster
+FROM node:lts-bullseye
 
-# Install git (if not already included in base image)
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Clone only the root/ikJawad folder from KHAN-MD
